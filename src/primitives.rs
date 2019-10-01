@@ -215,6 +215,10 @@ pub mod shapes {
         }
 
         pub fn draw(&self, display: &Display, frame: &mut Frame, method: LineDrawMethod) {
+            if self.points.len() < 3 {
+                return;
+            }
+
             for i in 0..self.points.len() {
                 let line = Line2d::new(
                     self.points[i].clone(),
