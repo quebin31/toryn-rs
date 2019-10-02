@@ -33,7 +33,7 @@ fn main() {
             _ => return,
         }
 
-        let shape = Shape2d::new(&[
+        let mut shape = Shape2d::new(&[
             Point2d::new(0, 0),
             Point2d::new(50, 50),
             Point2d::new(60, -50),
@@ -41,6 +41,13 @@ fn main() {
 
         let mut frame = display.draw();
         frame.clear_color(0., 0., 0., 1.);
+        shape.draw(&display, &mut frame, LineDrawMethod::MiddlePoint);
+        shape
+            .rotate(180_f32.to_radians())
+            .translate_x(-30)
+            .translate_y(30);
+        shape.draw(&display, &mut frame, LineDrawMethod::MiddlePoint);
+        shape.rotate(90_f32.to_radians()).translate(15);
         shape.draw(&display, &mut frame, LineDrawMethod::MiddlePoint);
         frame.finish().expect("Failed to swap buffers");
     });

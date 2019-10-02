@@ -44,6 +44,11 @@ fn main() {
             Line2d::new(Point2d::new(-100, -100), Point2d::new(100, -100)),
             Line2d::new(Point2d::new(-100, -100), Point2d::new(-100, 100)),
             Line2d::new(Point2d::new(100, 100), Point2d::new(100, -100)),
+            Line2d::rotated(
+                Point2d::new(0, 0),
+                Point2d::new(100, 100),
+                45_f32.to_radians(),
+            ),
         ];
 
         let mut frame = display.draw();

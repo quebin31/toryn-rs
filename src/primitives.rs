@@ -72,6 +72,36 @@ pub mod points {
             Self { x: 0, y: 0 }
         }
 
+        pub fn rotate(&self, rotation_deg: f32) -> Self {
+            let sin_rd = rotation_deg.sin();
+            let cos_rd = rotation_deg.cos();
+
+            let (x0, y0) = (self.x as f32, self.y as f32);
+
+            Self {
+                x: (x0 * cos_rd + y0 * -sin_rd).round() as i32,
+                y: (x0 * sin_rd + y0 * cos_rd).round() as i32,
+            }
+        }
+
+        pub fn translate_x(&self, dist: i32) -> Self {
+            Self {
+                x: self.x + dist,
+                y: self.y,
+            }
+        }
+
+        pub fn translate_y(&self, dist: i32) -> Self {
+            Self {
+                x: self.x,
+                y: self.y + dist,
+            }
+        }
+
+        pub fn translate(&self, dist: i32) -> Self {
+            Self { ..*self }.translate_x(dist).translate_y(dist)
+        }
+
         pub fn to_vertex(&self, display: &Display) -> Vertex {
             let inner_size = display.gl_window().window().inner_size();
             let x = 2.0 * self.x as f32 / inner_size.width as f32; // - 1.0;
@@ -106,10 +136,38 @@ pub mod shapes {
             }
         }
 
+        pub fn rotated(begin: Point2d, end: Point2d, rotation_deg: f32) -> Self {
+            let mut slf = Self::new(begin, end);
+            slf.rotate(rotation_deg);
+            slf
+        }
+
         pub fn slope(&self) -> f32 {
             let dy = (self.end_point.y - self.beg_point.y) as f32;
             let dx = (self.end_point.x - self.beg_point.x) as f32;
             dy / dx
+        }
+
+        pub fn rotate(&mut self, rotation_deg: f32) -> &mut Self {
+            self.beg_point = self.beg_point.rotate(rotation_deg);
+            self.end_point = self.end_point.rotate(rotation_deg);
+            self
+        }
+
+        pub fn translate_x(&mut self, dist: i32) -> &mut Self {
+            self.beg_point = self.beg_point.translate_x(dist);
+            self.end_point = self.end_point.translate_x(dist);
+            self
+        }
+
+        pub fn translate_y(&mut self, dist: i32) -> &mut Self {
+            self.beg_point = self.beg_point.translate_y(dist);
+            self.end_point = self.end_point.translate_y(dist);
+            self
+        }
+
+        pub fn translate(&mut self, dist: i32) -> &mut Self {
+            self.translate_x(dist).translate_y(dist)
         }
 
         pub fn draw(&self, display: &Display, frame: &mut Frame, method: LineDrawMethod) {
@@ -210,8 +268,39 @@ pub mod shapes {
             }
         }
 
+        pub fn rotated(points: &[Point2d], rotation_deg: f32) -> Self {
+            let mut slf = Self::new(points);
+            slf.rotate(rotation_deg);
+            slf
+        }
+
         pub fn add_point(&mut self, point: &Point2d) {
             self.points.push(point.clone());
+        }
+
+        pub fn rotate(&mut self, rotation_deg: f32) -> &mut Self {
+            for point in &mut self.points {
+                *point = point.rotate(rotation_deg);
+            }
+            self
+        }
+
+        pub fn translate_x(&mut self, dist: i32) -> &mut Self {
+            for point in &mut self.points {
+                *point = point.translate_x(dist);
+            }
+            self
+        }
+
+        pub fn translate_y(&mut self, dist: i32) -> &mut Self {
+            for point in &mut self.points {
+                *point = point.translate_y(dist);
+            }
+            self
+        }
+
+        pub fn translate(&mut self, dist: i32) -> &mut Self {
+            self.translate_x(dist).translate_y(dist)
         }
 
         pub fn draw(&self, display: &Display, frame: &mut Frame, method: LineDrawMethod) {
@@ -253,9 +342,9 @@ pub mod shapes {
                 buffer.push(Point2d::new(2 * x_o - x, y).to_vertex(display));
                 buffer.push(Point2d::new(2 * x_o - x, 2 * y_o - y).to_vertex(display));
                 buffer.push(Point2d::new(y, x).to_vertex(display));
-                buffer.push(Point2d::new(y, (2 * x_o - x)).to_vertex(display));
-                buffer.push(Point2d::new((2 * y_o - y), x).to_vertex(display));
-                buffer.push(Point2d::new((2 * y_o - y), (2 * x_o - x)).to_vertex(display));
+                buffer.push(Point2d::new(y, 2 * x_o - x).to_vertex(display));
+                buffer.push(Point2d::new(2 * y_o - y, x).to_vertex(display));
+                buffer.push(Point2d::new(2 * y_o - y, 2 * x_o - x).to_vertex(display));
             };
 
             let r = self.radius as i32;
