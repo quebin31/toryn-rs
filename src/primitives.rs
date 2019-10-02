@@ -228,4 +228,55 @@ pub mod shapes {
             }
         }
     }
+
+    #[derive(Debug, Clone)]
+    pub struct Circle2d {
+        origin: Point2d,
+        radius: u32,
+    }
+
+    impl Circle2d {
+        pub fn new(origin: Point2d, radius: u32) -> Self {
+            Self { origin, radius }
+        }
+
+        pub fn draw(&self, display: &Display, frame: &mut Frame) {
+            let steps = (self.origin.y - self.origin.x) as usize;
+            let mut buffer = Vec::with_capacity(steps);
+
+            let x_o = self.origin.x;
+            let y_o = self.origin.y;
+
+            let mut push_points = |x: i32, y: i32| {
+                buffer.push(Point2d::new(x, y).to_vertex(display));
+                buffer.push(Point2d::new(x, 2 * y_o - y).to_vertex(display));
+                buffer.push(Point2d::new(2 * x_o - x, y).to_vertex(display));
+                buffer.push(Point2d::new(2 * x_o - x, 2 * y_o - y).to_vertex(display));
+                buffer.push(Point2d::new(y, x).to_vertex(display));
+                buffer.push(Point2d::new(y, (2 * x_o - x)).to_vertex(display));
+                buffer.push(Point2d::new((2 * y_o - y), x).to_vertex(display));
+                buffer.push(Point2d::new((2 * y_o - y), (2 * x_o - x)).to_vertex(display));
+            };
+
+            let r = self.radius as i32;
+            let mut x = self.origin.x;
+            let mut y = self.origin.y + r;
+            let mut d = 1 - r;
+
+            while y >= x {
+                //println!("{:?}", (x, y));
+                push_points(x, y);
+                if d < 0 {
+                    d += 2 * (x - x_o) + 3;
+                    x += 1;
+                } else {
+                    d += 2 * (x - x_o - y + y_o) + 5;
+                    x += 1;
+                    y -= 1;
+                }
+            }
+
+            draw_vertex_as_points(&buffer, display, frame);
+        }
+    }
 }
