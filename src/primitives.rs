@@ -99,7 +99,31 @@ pub mod points {
         }
 
         pub fn translate(&self, dist: i32) -> Self {
-            Self { ..*self }.translate_x(dist).translate_y(dist)
+            Self {
+                x: self.x + dist,
+                y: self.y + dist,
+            }
+        }
+
+        pub fn scale_x(&self, scale: f32) -> Self {
+            Self {
+                x: (self.x as f32 * scale).round() as i32,
+                y: self.y,
+            }
+        }
+
+        pub fn scale_y(&self, scale: f32) -> Self {
+            Self {
+                x: self.x,
+                y: (self.y as f32 * scale).round() as i32,
+            }
+        }
+
+        pub fn scale(&self, scale: f32) -> Self {
+            Self {
+                x: (self.x as f32 * scale).round() as i32,
+                y: (self.y as f32 * scale).round() as i32,
+            }
         }
 
         pub fn to_vertex(&self, display: &Display) -> Vertex {
@@ -168,6 +192,22 @@ pub mod shapes {
 
         pub fn translate(&mut self, dist: i32) -> &mut Self {
             self.translate_x(dist).translate_y(dist)
+        }
+
+        pub fn scale_x(&mut self, scale: f32) -> &mut Self {
+            self.beg_point = self.beg_point.scale_x(scale);
+            self.end_point = self.end_point.scale_x(scale);
+            self
+        }
+
+        pub fn scale_y(&mut self, scale: f32) -> &mut Self {
+            self.beg_point = self.beg_point.scale_y(scale);
+            self.end_point = self.end_point.scale_y(scale);
+            self
+        }
+
+        pub fn scale(&mut self, scale: f32) -> &mut Self {
+            self.scale_x(scale).scale_y(scale)
         }
 
         pub fn draw(&self, display: &Display, frame: &mut Frame, method: LineDrawMethod) {
@@ -300,7 +340,31 @@ pub mod shapes {
         }
 
         pub fn translate(&mut self, dist: i32) -> &mut Self {
-            self.translate_x(dist).translate_y(dist)
+            for point in &mut self.points {
+                *point = point.translate(dist);
+            }
+            self
+        }
+
+        pub fn scale_x(&mut self, scale: f32) -> &mut Self {
+            for point in &mut self.points {
+                *point = point.scale_x(scale);
+            }
+            self
+        }
+
+        pub fn scale_y(&mut self, scale: f32) -> &mut Self {
+            for point in &mut self.points {
+                *point = point.scale_y(scale);
+            }
+            self
+        }
+
+        pub fn scale(&mut self, scale: f32) -> &mut Self {
+            for point in &mut self.points {
+                *point = point.scale(scale);
+            }
+            self
         }
 
         pub fn draw(&self, display: &Display, frame: &mut Frame, method: LineDrawMethod) {

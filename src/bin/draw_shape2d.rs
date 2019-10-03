@@ -47,7 +47,7 @@ fn main() {
             .translate_x(-30)
             .translate_y(30);
         shape.draw(&display, &mut frame, LineDrawMethod::MiddlePoint);
-        shape.rotate(90_f32.to_radians()).translate(15);
+        shape.rotate(90_f32.to_radians()).translate(15).scale(1.5);
         shape.draw(&display, &mut frame, LineDrawMethod::MiddlePoint);
         frame.finish().expect("Failed to swap buffers");
     });
