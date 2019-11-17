@@ -17,7 +17,7 @@ use glm::{
 
 use lazy_static::lazy_static;
 use std::time::{Duration, Instant};
-use toryn::{create_window, primitives::vertex::Vertex};
+use toryn::{create_window, primitives::vertex::Vertex3};
 
 struct Settings {
     width: f64,
@@ -45,6 +45,11 @@ struct Camera {
     axisx_value: f32,
     axisy_value: f32,
     use_perspective: bool,
+}
+
+struct Object {
+    vertices: Vec<Vertex3>,
+    indices: Vec<u32>,
 }
 
 struct GlmMat4(Mat4);
@@ -101,14 +106,14 @@ fn main() {
     lazy_static! {
         static ref VERTEX_SHADER_SRC: &'static str = r#"
             #version 330 core
-            in vec2 position;
+            in vec3 position;
 
             uniform mat4 model;
             uniform mat4 view;
             uniform mat4 projection;
 
             void main() {
-                gl_Position = projection * view * model * vec4(position, 0.0, 1.0);
+                gl_Position = projection * view * model * vec4(position, 1.0);
             }
         "#;
         static ref FRAGMENT_SHADER_SRC: &'static str = r#"
@@ -123,19 +128,16 @@ fn main() {
     let program =
         Program::from_source(&display, *VERTEX_SHADER_SRC, *FRAGMENT_SHADER_SRC, None).unwrap();
 
-    let vertices = vec![
-        Vertex::new(0.5, 0.5),
-        Vertex::new(0.5, -0.5),
-        Vertex::new(-0.5, -0.5),
-        Vertex::new(-0.5, 0.5),
-    ];
+    let mut object = Object {
+        vertices: vec![
+            Vertex3::new(0.5, 0.5, 0.0),
+            Vertex3::new(0.5, -0.5, 0.0),
+            Vertex3::new(-0.5, -0.5, 0.0),
+            Vertex3::new(-0.5, 0.5, 0.0),
+        ],
+        indices: vec![0_u32, 1, 3, 1, 2, 3],
+    };
 
-    let indices = vec![0_u32, 1, 3, 1, 2, 3];
-
-    let vertex_buffer =
-        VertexBuffer::new(&display, &vertices).expect("Failed to allocate vertex buffer");
-    let index_buffer = IndexBuffer::new(&display, PrimitiveType::TrianglesList, &indices)
-        .expect("Failed to allocate index buffer");
     let draw_parameters = DrawParameters {
         viewport: Some(Rect {
             left: 0,
@@ -159,7 +161,7 @@ fn main() {
                 }
 
                 WindowEvent::KeyboardInput { input, .. } => {
-                    handle_input(&input, &mut settings, &mut camera)
+                    handle_input(&input, &mut settings, &mut camera, &mut object)
                 }
 
                 WindowEvent::CursorEntered { .. } => {
@@ -179,8 +181,7 @@ fn main() {
                     &camera,
                     &settings,
                     &display,
-                    &vertex_buffer,
-                    &index_buffer,
+                    &object,
                     &program,
                     &draw_parameters,
                 ),
@@ -198,11 +199,15 @@ fn draw(
     camera: &Camera,
     settings: &Settings,
     display: &Display,
-    vertex_buffer: &VertexBuffer<Vertex>,
-    index_buffer: &IndexBuffer<u32>,
+    object: &Object,
     program: &Program,
     draw_parameters: &DrawParameters,
 ) {
+    let vertex_buffer =
+        VertexBuffer::new(display, &object.vertices).expect("Failed to allocate vertex buffer");
+    let index_buffer = IndexBuffer::new(display, PrimitiveType::TrianglesList, &object.indices)
+        .expect("Failed to allocate index buffer");
+
     let one_matrix = Mat4::new(
         Vec4::new(1., 0., 0., 0.),
         Vec4::new(0., 1., 0., 0.),
@@ -257,8 +262,8 @@ fn draw(
     frame.clear_color(0., 0., 0., 1.);
     frame
         .draw(
-            vertex_buffer,
-            index_buffer,
+            &vertex_buffer,
+            &index_buffer,
             program,
             &uniforms,
             draw_parameters,
@@ -303,7 +308,12 @@ fn handle_motion(axis: u32, value: f64, camera: &mut Camera) {
     camera.front = normalize(Vec3::new(x, y, z));
 }
 
-fn handle_input(input: &KeyboardInput, settings: &mut Settings, camera: &mut Camera) {
+fn handle_input(
+    input: &KeyboardInput,
+    settings: &mut Settings,
+    camera: &mut Camera,
+    object: &mut Object,
+) {
     match (input.state, input.virtual_keycode) {
         (ElementState::Pressed, Some(VirtualKeyCode::X)) => {
             settings.rot_x += 1_f32.to_radians();
@@ -345,6 +355,42 @@ fn handle_input(input: &KeyboardInput, settings: &mut Settings, camera: &mut Cam
 
         (ElementState::Released, Some(VirtualKeyCode::Tab)) => {
             camera.use_perspective = !camera.use_perspective;
+        }
+
+        (ElementState::Pressed, Some(VirtualKeyCode::Up)) => {
+            for vertex in &mut object.vertices {
+                vertex.position[2] -= 0.1;
+            }
+        }
+
+        (ElementState::Pressed, Some(VirtualKeyCode::Down)) => {
+            for vertex in &mut object.vertices {
+                vertex.position[2] += 0.1;
+            }
+        }
+
+        (ElementState::Pressed, Some(VirtualKeyCode::Left)) => {
+            for vertex in &mut object.vertices {
+                vertex.position[0] += 0.1;
+            }
+        }
+
+        (ElementState::Pressed, Some(VirtualKeyCode::Right)) => {
+            for vertex in &mut object.vertices {
+                vertex.position[0] -= 0.1;
+            }
+        }
+
+        (ElementState::Pressed, Some(VirtualKeyCode::Space)) => {
+            for vertex in &mut object.vertices {
+                vertex.position[1] += 0.1;
+            }
+        }
+
+        (ElementState::Pressed, Some(VirtualKeyCode::LShift)) => {
+            for vertex in &mut object.vertices {
+                vertex.position[1] -= 0.1;
+            }
         }
 
         _ => {}
