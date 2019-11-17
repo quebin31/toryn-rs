@@ -9,3 +9,4 @@ edition = "2018"
 [dependencies]
 glium = "0.26.0-alpha3"
 lazy_static = "1.4.0"
+glm = "0.2.3"
