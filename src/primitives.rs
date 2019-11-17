@@ -7,7 +7,7 @@ pub mod vertex {
 
     #[derive(Debug, Clone, Copy)]
     pub struct Vertex {
-        position: [f32; 2],
+        pub position: [f32; 2],
     }
 
     impl Vertex {
@@ -18,11 +18,26 @@ pub mod vertex {
 
     implement_vertex!(Vertex, position);
 
+    #[derive(Debug, Clone, Copy)]
+    pub struct Vertex3 {
+        pub position: [f32; 3],
+    }
+
+    impl Vertex3 {
+        pub fn new(x: f32, y: f32, z: f32) -> Self {
+            Self {
+                position: [x, y, z],
+            }
+        }
+    }
+
+    implement_vertex!(Vertex3, position);
+
     pub fn draw_vertex_as_points(vertexs: &[Vertex], display: &Display, frame: &mut Frame) {
         lazy_static! {
             static ref INDICES: NoIndices = NoIndices(PrimitiveType::Points);
             static ref VERTEX_SHADER_SRC: &'static str = r#"
-                #version 330 core
+            La wea con                #version 330 core
                 in vec2 position;
                 void main() {
                     gl_Position = vec4(position, 0.0, 1.0);
