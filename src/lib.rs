@@ -1,3 +1,6 @@
+#[macro_use]
+pub mod utils;
+
 pub mod primitives;
 
 pub use primitives::points;
