@@ -371,13 +371,13 @@ fn handle_input(
 
         (ElementState::Pressed, Some(VirtualKeyCode::Left)) => {
             for vertex in &mut object.vertices {
-                vertex.position[0] += 0.1;
+                vertex.position[0] -= 0.1;
             }
         }
 
         (ElementState::Pressed, Some(VirtualKeyCode::Right)) => {
             for vertex in &mut object.vertices {
-                vertex.position[0] -= 0.1;
+                vertex.position[0] += 0.1;
             }
         }
 
