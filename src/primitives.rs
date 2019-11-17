@@ -22,14 +22,14 @@ pub mod vertex {
         lazy_static! {
             static ref INDICES: NoIndices = NoIndices(PrimitiveType::Points);
             static ref VERTEX_SHADER_SRC: &'static str = r#"
-                #version 140
+                #version 330 core
                 in vec2 position;
                 void main() {
                     gl_Position = vec4(position, 0.0, 1.0);
                 }
             "#;
             static ref FRAGMENT_SHADER_SRC: &'static str = r#"
-                #version 140
+                #version 330 core
                 out vec4 color;
                 void main() {
                     color = vec4(1.0, 1.0, 1.0, 1.0);
