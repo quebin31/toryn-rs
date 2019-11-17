@@ -28,5 +28,7 @@ $ cargo run --bin draw_mid_line
     - `S` move camera backward.
     - `D` move camera to the right.
     - `S` move camera to the left.
+    - `+` increase fov.
+    - `-` decrease fov.
     - Move the mouse to yaw and pitch the camera.
     - `Tab` changes perspective to orthographic projection, and viceversa (currently broken).
