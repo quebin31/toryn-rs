@@ -47,7 +47,22 @@ fn main() {
             Line2d::rotated(
                 Point2d::new(0, 0),
                 Point2d::new(100, 100),
+                (-45_f32).to_radians(),
+            ),
+            Line2d::rotated(
+                Point2d::new(0, 0),
+                Point2d::new(100, 100),
                 45_f32.to_radians(),
+            ),
+            Line2d::rotated(
+                Point2d::new(0, 0),
+                Point2d::new(100, 100),
+                135_f32.to_radians(),
+            ),
+            Line2d::rotated(
+                Point2d::new(0, 0),
+                Point2d::new(100, 100),
+                225_f32.to_radians(),
             ),
         ];
 
