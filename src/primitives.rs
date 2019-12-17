@@ -1,6 +1,8 @@
 pub mod vertex {
+    use crate::math::{ortho, GMat4};
     use glium::implement_vertex;
     use glium::index::{NoIndices, PrimitiveType};
+    use glium::uniform;
     use glium::uniforms::EmptyUniforms;
     use glium::{Display, Frame, Program, Surface, VertexBuffer};
     use lazy_static::lazy_static;
@@ -37,13 +39,17 @@ pub mod vertex {
         lazy_static! {
             static ref INDICES: NoIndices = NoIndices(PrimitiveType::Points);
             static ref VERTEX_SHADER_SRC: &'static str = r#"
-            La wea con                #version 330 core
+                #version 330 core
                 in vec2 position;
+
+                uniform mat4 proj;
                 void main() {
-                    gl_Position = vec4(position, 0.0, 1.0);
+                    gl_Position = proj * vec4(position, 0.0, 1.0);
                 }
+
             "#;
             static ref FRAGMENT_SHADER_SRC: &'static str = r#"
+
                 #version 330 core
                 out vec4 color;
                 void main() {
@@ -56,14 +62,50 @@ pub mod vertex {
         let program =
             Program::from_source(display, *VERTEX_SHADER_SRC, *FRAGMENT_SHADER_SRC, None).unwrap();
 
+        let dimen = display.gl_window().window().inner_size();
+        let proj = GMat4(ortho(0., dimen.width as f32, dimen.height as f32, 0.));
+        let uniforms = uniform! {
+            proj: proj,
+        };
+
         frame
-            .draw(
-                &buffer,
-                &*INDICES,
-                &program,
-                &EmptyUniforms,
-                &Default::default(),
-            )
+            .draw(&buffer, &*INDICES, &program, &uniforms, &Default::default())
+            .unwrap();
+    }
+
+    pub fn draw_vertex_as_lines(vertex: &[Vertex], display: &Display, frame: &mut Frame) {
+        lazy_static! {
+            static ref INDICES: NoIndices = NoIndices(PrimitiveType::LineStripAdjacency);
+            static ref VERTEX_SHADER_SRC: &'static str = r#"
+                #version 330 core
+                in vec2 position;
+
+                uniform mat4 proj;
+                void main() {
+                    gl_Position = proj * vec4(position, 0.0, 1.0);
+                }
+            "#;
+            static ref FRAGMENT_SHADER_SRC: &'static str = r#"
+                #version 330 core
+                out vec4 color;
+                void main() {
+                    color = vec4(1.0, 1.0, 1.0, 1.0);
+                }
+            "#;
+        }
+
+        let buffer = VertexBuffer::new(display, vertex).unwrap();
+        let program =
+            Program::from_source(display, *VERTEX_SHADER_SRC, *FRAGMENT_SHADER_SRC, None).unwrap();
+
+        let dimen = display.gl_window().window().inner_size();
+        let proj = GMat4(ortho(0., dimen.width as f32, dimen.height as f32, 0.));
+        let uniforms = uniform! {
+            proj: proj,
+        };
+
+        frame
+            .draw(&buffer, &*INDICES, &program, &uniforms, &Default::default())
             .unwrap();
     }
 }
