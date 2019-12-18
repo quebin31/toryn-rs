@@ -3,8 +3,7 @@ pub mod vertex {
     use glium::implement_vertex;
     use glium::index::{NoIndices, PrimitiveType};
     use glium::uniform;
-    use glium::uniforms::EmptyUniforms;
-    use glium::{Display, Frame, Program, Surface, VertexBuffer};
+    use glium::{Display, DrawParameters, Frame, Program, Surface, VertexBuffer};
     use lazy_static::lazy_static;
 
     #[derive(Debug, Clone, Copy)]
@@ -68,8 +67,13 @@ pub mod vertex {
             proj: proj,
         };
 
+        let draw_params = DrawParameters {
+            point_size: Some(3.0),
+            ..Default::default()
+        };
+
         frame
-            .draw(&buffer, &*INDICES, &program, &uniforms, &Default::default())
+            .draw(&buffer, &*INDICES, &program, &uniforms, &draw_params)
             .unwrap();
     }
 
