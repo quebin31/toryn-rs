@@ -17,12 +17,18 @@ for that choose one to run (e.g. `draw_mid_line`)
 $ cargo run --bin draw_mid_line
 ```
 
+## Demos 
+
+`draw_bezier` demo:
+![Bezier](demo/bezier.gif)
+
 
 ## Binaries 
 
 - `draw_inc_line`: Draws some lines using the incremental method.
 - `draw_mid_line`: Draws some lines using the middle point method.
 - `draw_shape2d`: Draw a shape by giving at least 3 points, it's possible to change the line draw method too.
+- `draw_bezier:` Draw a bezier curve from clicking points on screen.
 - `camera_proj`: Play with the camera and perspective.
     - `W` move camera forward.
     - `S` move camera backward.
